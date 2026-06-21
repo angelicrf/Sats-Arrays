@@ -1,79 +1,104 @@
-# Cyclic Cell Shift for Satellites in Orbit
+# Satellite Telemetry Simulation
 
-## Overview
-This project simulates how **cells** (resource assignments) shift for satellites as they move in orbit.  
-This project provides an automated simulation of satellite telemetry data. It models how **cells** (representing resource assignments or sensor readings) for a group of satellites shift in a synchronized, cyclic manner over time.
+This project provides a simulation environment for satellite telemetry data, specifically modeling a cyclic handoff or state change within cellular arrays of multiple satellites. It includes several methods for running and visualizing the simulation data.
 
-Each satellite is assigned a fixed number of discrete cells. As the satellite travels along its orbital path, the cell assignments must advance in a synchronized, cyclic manner to maintain coverage or resource allocation.
-The simulation runs continuously, performing a shift at a regular interval and generating a plot to visualize the data changes over time. The entire application is containerized with Docker for easy setup and execution.
+## Live Demo
 
-This example uses:
-- **3 satellites**
-- **7 cells per satellite**
+Explore a live, interactive version of this project on Google Colab:
 
-The shift is triggered by user input and applied identically to all satellites at the same time.
-The simulation automatically performs a shift every **90 seconds**.
+[<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>](https://colab.research.google.com/drive/1oO4PaPrfZVrxoy5wmVjOtoPREKtJszkG#scrollTo=udvD53g_LvWp)
 
-## How Cell Shifting Works
-## How It Works
-The mechanism uses a **+1 cyclic left shift**:
+## Features
 
-- Every cell moves one position to the left.
-- The cell that was at the first position (index 0) wraps around to the last position (index 6).
+- **Multi-Satellite Simulation**: Simulates a configurable number of satellites, each with its own cellular data array.
+- **Cyclic Data Shift**: Performs a `+1` cyclic left shift on the data arrays at a regular interval to simulate state changes or telemetry handoffs.
+- **Multiple Visualization Scripts**:
+  - `telemetry_simulation.py`: A command-line script that plots the historical values of all cells for a single, specified satellite.
+  - `telemetry_notebook.ipynb`: An interactive Jupyter Notebook that provides a live-updating plot of the first cell's value from all satellites.
+  - `shiftarray.py`: An IPython/Jupyter script that visualizes the current state of all cells for all satellites at a specific moment in time.
+- **Containerized Environment**: Uses Docker and Docker Compose to provide a consistent, portable environment with all dependencies included, accessible via Jupyter Lab.
 
-**Example for one satellite:**
-- Before shift: `[0, 1, 2, 3, 4, 5, 6]`
-- After +1 shift: `[1, 2, 3, 4, 5, 6, 0]`
-- **Before shift:** `[0, 1, 2, 3, 4, 5, 6]`
-- **After +1 shift:** `[1, 2, 3, 4, 5, 6, 0]`
+---
 
-This represents the cell assignment "pushing forward" by one slot as the satellite moves in its orbit. The same operation is performed simultaneously on all three satellites so they stay phase-aligned.
-This operation is performed simultaneously on all three satellites to keep them synchronized.
+## Project Components
 
-## Why Save First and Last Values?
-Before each shift, the original value at the **first index** and **last index** of every array is saved.  
-### Telemetry Visualization
-After each shift, the simulation generates a plot named `telemetry_plot.png` inside the `output` directory. This plot tracks the value of the first cell (index 0) for each satellite over time, providing a visual representation of the telemetry data.
+- `telemetry_simulation.py`:
+  A standalone Python script that runs the simulation in the terminal. After each cycle, it generates and displays a plot showing the value history of all cells for a single satellite (`SATELLITE_TO_PLOT`). The simulation pauses until the plot window is closed.
 
-These saved values are useful because:
-- The first cell is the one being "pushed out" of the current window.
-- The last cell is the position that receives the wrapped value.
-- They can be used later for logging, special boundary logic, restoration, or custom manipulation.
-## How to Run the Project
-The project is designed to be run with Docker and Docker Compose, which handles all dependencies and setup.
+- `telemetry_notebook.ipynb`:
+  An interactive Jupyter Notebook designed for live visualization. It runs the simulation and continuously updates a plot within the notebook cell, showing the value history of the first cell from each satellite.
 
-## Program Behavior
-The program runs in a continuous loop:
-1. Shows the current state of all three satellites.
-2. Asks for user input.
-3. If the user enters **`1`**: performs the +1 cyclic left shift on all three arrays, then displays the new state and the saved pre-shift first/last values.
-4. If the user enters **`0`**: the program exits cleanly.
-5. Any other input: no shift occurs and the prompt repeats.
-### Prerequisites
-- Docker
-- Docker Compose (usually included with Docker Desktop)
+- `shiftarray.py`:
+  A script designed for use in an IPython environment (like a Jupyter cell). It visualizes a snapshot of the current state of all satellites on a single graph, with cell indices on the x-axis and cell values on the y-axis.
 
-This design makes it easy to simulate multiple orbital cycles by repeatedly entering `1`.
-### Steps
-1.  Open a terminal or command prompt in the root directory of this project.
-2.  Run the following command to build the Docker image and start the simulation container:
+- `docker-compose.yml` & `Dockerfile`:
+  These files define the containerized environment. They build a Docker image with Python and all necessary libraries (`matplotlib`, `jupyterlab`, etc.) and run a Jupyter Lab server.
+
+- `requirements.txt`:
+  A list of all Python dependencies required to run the project locally.
+
+---
+
+## Getting Started
+
+There are two primary ways to run the simulations: using Docker (recommended for ease of setup) or running locally on your machine.
+
+### Method 1: Using Docker (Recommended)
+
+This method uses the provided Docker setup to run a Jupyter Lab instance where you can interact with the notebooks and scripts.
+
+1.  **Prerequisites**:
+    - Docker
+    - Docker Compose
+
+2.  **Build and Run the Container**:
+    Open a terminal in the project's root directory and run:
+
     ```bash
     docker-compose up --build
     ```
-3.  The simulation will start, and you will see log output in your terminal every 90 seconds as a shift occurs.
-4.  After the first shift, an `output` directory will be created in the project folder. Inside it, you will find `telemetry_plot.png`. This image is updated automatically after every shift.
-5.  To stop the simulation, press `Ctrl+C` in the terminal.
 
-## Example Satellite Configuration
-```python
-# Satellite 1
-array1 = [0, 1, 2, 3, 4, 5, 6]
+3.  **Access Jupyter Lab**:
+    Open your web browser and navigate to `http://localhost:8888`.
 
-# Satellite 2
-array2 = [10, 11, 12, 13, 14, 15, 16]
+4.  **Run a Simulation**:
+    - From the file browser on the left, double-click `telemetry_notebook.ipynb` or `shiftarray.py` to open it.
+    - Run the cells in the notebook to start the interactive simulation.
 
-# Satellite 3
-array3 = [20, 21, 22, 23, 24, 25, 26]
-```
-## Configuration
-You can modify the simulation's parameters, such as the number of satellites or the shift interval, by editing the configuration variables at the top of the `telemetry_simulation.py` file.
+### Method 2: Running Locally
+
+This method involves setting up a local Python environment and running the scripts directly.
+
+1.  **Prerequisites**:
+    - Python 3.9+
+
+2.  **Create a Virtual Environment**:
+    From the project root directory, create and activate a virtual environment.
+
+    ```bash
+    # Create the environment
+    python -m venv venv
+
+    # Activate on Windows
+    .\venv\Scripts\activate
+
+    # Activate on macOS/Linux
+    # source venv/bin/activate
+    ```
+
+3.  **Install Dependencies**:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4.  **Run a Simulation**:
+    - **To run the command-line script**:
+      ```bash
+      python telemetry_simulation.py
+      ```
+    - **To run the Jupyter Notebook**:
+      ```bash
+      jupyter lab
+      ```
+      Then, open `telemetry_notebook.ipynb` in the browser window that appears.
