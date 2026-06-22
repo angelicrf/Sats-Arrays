@@ -2,6 +2,8 @@
 
 This project provides a simulation environment for satellite telemetry data, specifically modeling a cyclic handoff or state change within cellular arrays of multiple satellites. It includes several methods for running and visualizing the simulation data.
 
+![Satellite Coverage](coverage_cells.png)
+
 ## Live Demo
 
 Explore a live, interactive version of this project on Google Colab:
@@ -14,6 +16,7 @@ Explore a live, interactive version of this project on Google Colab:
 - **Cyclic Data Shift**: Performs a `+1` cyclic left shift on the data arrays at a regular interval to simulate state changes or telemetry handoffs.
 - **Multiple Visualization Scripts**:
   - `telemetry_simulation.py`: A command-line script that plots the historical values of all cells for a single, specified satellite.
+  - `ownership_transfer_simulation.py`: A text-based simulation of a dynamic, rolling handoff of cell ownership between satellites.
   - `telemetry_notebook.ipynb`: An interactive Jupyter Notebook that provides a live-updating plot of the first cell's value from all satellites.
   - `shiftarray.py`: An IPython/Jupyter script that visualizes the current state of all cells for all satellites at a specific moment in time.
 - **Containerized Environment**: Uses Docker and Docker Compose to provide a consistent, portable environment with all dependencies included, accessible via Jupyter Lab.
@@ -24,6 +27,9 @@ Explore a live, interactive version of this project on Google Colab:
 
 - `telemetry_simulation.py`:
   A standalone Python script that runs the simulation in the terminal. After each cycle, it generates and displays a plot showing the value history of all cells for a single satellite (`SATELLITE_TO_PLOT`). The simulation pauses until the plot window is closed.
+
+- `ownership_transfer_simulation.py`:
+  A text-based simulation demonstrating a dynamic, rolling handoff of cell ownership. In a continuous cycle, each satellite simultaneously gives up ownership of one of its cells to the next satellite in the ring while gaining ownership of a cell from the previous one. The simulation runs in the terminal and prints a detailed telemetry report at each 90-second interval.
 
 - `telemetry_notebook.ipynb`:
   An interactive Jupyter Notebook designed for live visualization. It runs the simulation and continuously updates a plot within the notebook cell, showing the value history of the first cell from each satellite.
@@ -96,6 +102,10 @@ This method involves setting up a local Python environment and running the scrip
     - **To run the command-line script**:
       ```bash
       python telemetry_simulation.py
+      ```
+    - **To run the dynamic ownership transfer simulation**:
+      ```bash
+      python ownership_transfer_simulation.py
       ```
     - **To run the Jupyter Notebook**:
       ```bash
